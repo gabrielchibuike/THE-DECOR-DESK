@@ -1,4 +1,4 @@
-# Antigravity Decor — Home Decor Affiliate Blog & CMS
+# Home Decor Affiliate Blog & CMS
 
 Antigravity Decor is a modern, high-converting content site and custom CMS built for home decor affiliate marketing and Pinterest traffic conversion.
 
