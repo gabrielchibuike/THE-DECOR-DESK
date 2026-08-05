@@ -22,14 +22,14 @@ export async function POST(request: NextRequest) {
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error: uploadError } = await supabase.storage
-    .from("post-images")
+    .from("my_bucket")
     .upload(filename, buffer, { contentType: file.type, upsert: false });
 
   if (uploadError) {
     return NextResponse.json({ error: uploadError.message }, { status: 500 });
   }
 
-  const { data: { publicUrl } } = supabase.storage.from("post-images").getPublicUrl(filename);
+  const { data: { publicUrl } } = supabase.storage.from("my_bucket").getPublicUrl(filename);
 
   return NextResponse.json({ url: publicUrl }, { status: 200 });
 }

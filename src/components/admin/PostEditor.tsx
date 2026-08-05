@@ -25,6 +25,12 @@ interface Block {
   caption?: string;
   // product_block
   productId?: string;
+  productCategory?: string;
+  productName?: string;
+  productImage?: string;
+  retailerName?: string;
+  affiliateUrl?: string;
+  localPreview?: string;
 }
 
 interface Category { id: string; name: string; slug: string; }
@@ -43,7 +49,7 @@ const emptyBlock = (type: BlockType): Block => {
   const base = { id: newId(), type };
   if (type === "heading") return { ...base, level: 2, text: "" };
   if (type === "image") return { ...base, url: "", alt: "", caption: "" };
-  if (type === "product_block") return { ...base, productId: "" };
+  if (type === "product_block") return { ...base, productCategory: "Shop the Look", productName: "", productImage: "", retailerName: "", affiliateUrl: "" };
   return { ...base, text: "" };
 };
 
@@ -61,6 +67,8 @@ export default function PostEditor({ post, categories, products }: PostEditorPro
   const [metaDescription, setMetaDescription] = useState(post?.meta_description ?? "");
   const [keywords, setKeywords] = useState((post?.keywords ?? []).join(", "));
   const [heroImageUrl, setHeroImageUrl] = useState(post?.hero_image_url ?? "");
+  const [heroLocalPreview, setHeroLocalPreview] = useState<string | null>(null);
+  const [uploadingHero, setUploadingHero] = useState(false);
   const [status, setStatus] = useState<"draft" | "published">(post?.status ?? "draft");
   const [featured, setFeatured] = useState(post?.featured ?? false);
   const [publishedAt, setPublishedAt] = useState(
@@ -116,6 +124,18 @@ export default function PostEditor({ post, categories, products }: PostEditorPro
   // Image upload
   const handleImageUpload = async (idx: number, file: File) => {
     setUploadingIdx(idx);
+    const objectUrl = URL.createObjectURL(file);
+    
+    setBlocks((prev) =>
+      prev.map((b, i) => {
+        if (i === idx) {
+          if (b.localPreview) URL.revokeObjectURL(b.localPreview);
+          return { ...b, localPreview: objectUrl };
+        }
+        return b;
+      })
+    );
+
     const form = new FormData();
     form.append("file", file);
     try {
@@ -123,11 +143,36 @@ export default function PostEditor({ post, categories, products }: PostEditorPro
       const data = await res.json();
       if (res.ok && data.url) {
         setBlocks((prev) =>
-          prev.map((b, i) => (i === idx ? { ...b, url: data.url } : b))
+          prev.map((b, i) => {
+            if (i === idx) {
+              if (b.type === "image") return { ...b, url: data.url };
+              if (b.type === "product_block") return { ...b, productImage: data.url };
+            }
+            return b;
+          })
         );
       }
     } finally {
       setUploadingIdx(null);
+    }
+  };
+
+  const handleHeroUpload = async (file: File) => {
+    setUploadingHero(true);
+    if (heroLocalPreview) URL.revokeObjectURL(heroLocalPreview);
+    const objectUrl = URL.createObjectURL(file);
+    setHeroLocalPreview(objectUrl);
+
+    const form = new FormData();
+    form.append("file", file);
+    try {
+      const res = await fetch("/api/admin/upload", { method: "POST", body: form });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setHeroImageUrl(data.url);
+      }
+    } finally {
+      setUploadingHero(false);
     }
   };
 
@@ -144,7 +189,7 @@ export default function PostEditor({ post, categories, products }: PostEditorPro
       meta_description: metaDescription,
       keywords: keywords.split(",").map((k: any) => k.trim()).filter(Boolean),
       hero_image_url: heroImageUrl || null,
-      content: blocks.map(({ id: _id, ...rest }) => rest), // strip client-side ids
+      content: blocks.map(({ id: _id, localPreview: _lp, ...rest }) => rest), // strip client-side properties
       status: finalStatus,
       featured,
       published_at: finalStatus === "published" ? new Date(publishedAt).toISOString() : null,
@@ -322,6 +367,8 @@ export default function PostEditor({ post, categories, products }: PostEditorPro
           categoryId={categoryId}
           keywords={keywords}
           heroImageUrl={heroImageUrl}
+          heroLocalPreview={heroLocalPreview}
+          uploadingHero={uploadingHero}
           publishedAt={publishedAt}
           featured={featured}
           status={status}
@@ -330,7 +377,8 @@ export default function PostEditor({ post, categories, products }: PostEditorPro
           onSlugReset={() => { setSlugManual(false); setSlug(autoSlug(title)); }}
           onCategoryChange={setCategoryId}
           onKeywordsChange={setKeywords}
-          onHeroChange={setHeroImageUrl}
+          onHeroChange={(v: any) => { setHeroImageUrl(v); setHeroLocalPreview(null); }}
+          onHeroUpload={handleHeroUpload}
           onDateChange={setPublishedAt}
           onFeaturedChange={setFeatured}
           onStatusChange={setStatus}
@@ -396,15 +444,16 @@ function BlockCard({
         {block.type === "image" && (
           <div className="space-y-2">
             <div className="flex gap-2">
-              <input type="text" value={block.url ?? ""} onChange={(e) => onUpdate({ url: e.target.value })} placeholder="Image URL or upload below…" className={`${inputClass} flex-1 font-mono text-xs`} />
+              <input type="text" value={block.url ?? ""} onChange={(e) => onUpdate({ url: e.target.value, localPreview: undefined })} placeholder="Image URL or upload below…" className={`${inputClass} flex-1 font-mono text-xs`} />
               <label className="flex items-center gap-1 px-3 py-2 bg-brand-black text-brand-cream text-xs font-semibold rounded-md cursor-pointer hover:bg-brand-taupe-dark transition whitespace-nowrap">
                 {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <><ImageIcon className="w-3 h-3" /> Upload</>}
                 <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) onImageUpload(e.target.files[0]); }} disabled={uploading} />
               </label>
             </div>
-            {block.url && (
-              <div className="relative h-32 rounded-md overflow-hidden bg-brand-cream border border-brand-taupe-light">
-                <Image src={block.url} alt={block.alt ?? ""} fill className="object-cover" />
+            {(block.localPreview || block.url) && (
+              <div className={`relative h-32 rounded-md overflow-hidden bg-brand-cream border border-brand-taupe-light ${uploading ? "opacity-50" : ""}`}>
+                <Image src={block.localPreview || block.url || ""} alt={block.alt ?? ""} fill className="object-cover" />
+                {uploading && <div className="absolute inset-0 flex items-center justify-center bg-black/10"><Loader2 className="w-6 h-6 animate-spin text-brand-black" /></div>}
               </div>
             )}
             <input type="text" value={block.alt ?? ""} onChange={(e) => onUpdate({ alt: e.target.value })} placeholder="Alt text (required for SEO)" className={`${inputClass} text-xs`} />
@@ -413,23 +462,45 @@ function BlockCard({
         )}
 
         {block.type === "product_block" && (
-          <div className="space-y-2">
-            <select value={block.productId ?? ""} onChange={(e) => onUpdate({ productId: e.target.value })} className={inputClass}>
-              <option value="">— Select a product —</option>
-              {products.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
-            {block.productId && (
-              <div className="flex items-center gap-2 p-2 bg-brand-cream rounded border border-brand-taupe-light">
-                {products.find(p => p.id === block.productId)?.image_url && (
-                  <div className="relative w-10 h-10 rounded overflow-hidden shrink-0">
-                    <Image src={products.find(p => p.id === block.productId)!.image_url!} alt="" fill className="object-cover" />
-                  </div>
-                )}
-                <span className="text-xs font-medium text-brand-charcoal truncate">
-                  {products.find(p => p.id === block.productId)?.name}
-                </span>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-semibold text-brand-charcoal/70">Category / Label</label>
+                <input type="text" value={block.productCategory ?? ""} onChange={(e) => onUpdate({ productCategory: e.target.value })} placeholder="e.g. Shop the Look" className={inputClass} />
               </div>
-            )}
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-semibold text-brand-charcoal/70">Product Name</label>
+                <input type="text" value={block.productName ?? ""} onChange={(e) => onUpdate({ productName: e.target.value })} placeholder="e.g. Matte Black Faucet" className={inputClass} />
+              </div>
+            </div>
+            
+            <div className="space-y-1">
+              <label className="text-[10px] uppercase font-semibold text-brand-charcoal/70">Product Image URL</label>
+              <div className="flex gap-2">
+                <input type="text" value={block.productImage ?? ""} onChange={(e) => onUpdate({ productImage: e.target.value, localPreview: undefined })} placeholder="https://..." className={`${inputClass} flex-1 font-mono text-xs`} />
+                <label className="flex items-center gap-1 px-3 py-2 bg-brand-black text-brand-cream text-xs font-semibold rounded-md cursor-pointer hover:bg-brand-taupe-dark transition whitespace-nowrap">
+                  {uploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <><ImageIcon className="w-3 h-3" /> Upload</>}
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) onImageUpload(e.target.files[0]); }} disabled={uploading} />
+                </label>
+              </div>
+              {(block.localPreview || block.productImage) && (
+                <div className={`relative h-24 w-24 rounded-md overflow-hidden bg-brand-cream border border-brand-taupe-light mt-2 ${uploading ? "opacity-50" : ""}`}>
+                  <Image src={block.localPreview || block.productImage || ""} alt="" fill className="object-cover" />
+                  {uploading && <div className="absolute inset-0 flex items-center justify-center bg-black/10"><Loader2 className="w-6 h-6 animate-spin text-brand-black" /></div>}
+                </div>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-semibold text-brand-charcoal/70">Retailer</label>
+                <input type="text" value={block.retailerName ?? ""} onChange={(e) => onUpdate({ retailerName: e.target.value })} placeholder="e.g. Amazon" className={inputClass} />
+              </div>
+              <div className="space-y-1">
+                <label className="text-[10px] uppercase font-semibold text-brand-charcoal/70">Affiliate Link</label>
+                <input type="url" value={block.affiliateUrl ?? ""} onChange={(e) => onUpdate({ affiliateUrl: e.target.value })} placeholder="https://..." className={`${inputClass} font-mono text-xs`} />
+              </div>
+            </div>
           </div>
         )}
 
@@ -457,6 +528,28 @@ function PreviewBlock({ block, products }: { block: Block; products: ProductOpti
     </figure>
   );
   if (block.type === "product_block") {
+    // If it's a dynamic block
+    if (block.productName || block.productImage || block.affiliateUrl) {
+      return (
+        <div className="my-6 p-4 bg-brand-taupe-light/30 border border-brand-taupe-light rounded-md flex flex-col gap-3">
+          <div className="flex items-center gap-3">
+            {block.productImage && <div className="relative w-16 h-16 rounded overflow-hidden shrink-0"><Image src={block.productImage} alt={block.productName ?? ""} fill className="object-cover" /></div>}
+            <div>
+              <p className="text-xs font-semibold text-brand-taupe-dark uppercase tracking-widest">{block.productCategory || "Shop the Look"}</p>
+              <p className="text-sm font-bold text-brand-black">{block.productName}</p>
+              <p className="text-xs text-brand-charcoal/70">{block.retailerName}</p>
+            </div>
+          </div>
+          {block.affiliateUrl && (
+            <a href={block.affiliateUrl} target="_blank" rel="noopener noreferrer" className="self-start text-xs font-semibold uppercase tracking-wider bg-brand-black text-brand-cream px-3 py-1.5 rounded hover:bg-brand-taupe-dark transition-colors">
+              Buy on {block.retailerName || "Retailer"}
+            </a>
+          )}
+        </div>
+      );
+    }
+
+    // Legacy fallback
     const p = products.find(x => x.id === block.productId);
     return p ? (
       <div className="my-6 p-4 bg-brand-taupe-light/30 border border-brand-taupe-light rounded-md flex items-center gap-3">
@@ -472,9 +565,10 @@ function PreviewBlock({ block, products }: { block: Block; products: ProductOpti
 // ── Settings Panel ─────────────────────────────────────────────
 function SettingsPanel({
   slug, slugManual, categoryId, keywords, heroImageUrl,
+  heroLocalPreview, uploadingHero,
   publishedAt, featured, status, categories,
   onSlugChange, onSlugReset, onCategoryChange, onKeywordsChange,
-  onHeroChange, onDateChange, onFeaturedChange, onStatusChange,
+  onHeroChange, onHeroUpload, onDateChange, onFeaturedChange, onStatusChange,
 }: any) {
   const inputClass = "w-full px-3 py-2.5 bg-brand-cream border border-brand-taupe-light rounded-md text-brand-black text-sm focus:outline-none focus:ring-1 focus:ring-brand-taupe transition";
 
@@ -519,10 +613,17 @@ function SettingsPanel({
         {/* Hero Image */}
         <div className="space-y-1.5">
           <label className="block text-xs font-semibold uppercase tracking-wider text-brand-charcoal/70">Hero Image URL</label>
-          <input type="text" value={heroImageUrl} onChange={(e) => onHeroChange(e.target.value)} placeholder="/images/hero-living.jpg" className={`${inputClass} font-mono text-xs`} />
-          {heroImageUrl && (
-            <div className="relative aspect-video rounded overflow-hidden bg-brand-cream border border-brand-taupe-light">
-              <Image src={heroImageUrl} alt="Hero preview" fill className="object-cover" />
+          <div className="flex gap-2">
+            <input type="text" value={heroImageUrl} onChange={(e) => onHeroChange(e.target.value)} placeholder="/images/hero-living.jpg" className={`${inputClass} flex-1 font-mono text-xs`} />
+            <label className="flex items-center gap-1 px-3 py-2 bg-brand-black text-brand-cream text-xs font-semibold rounded-md cursor-pointer hover:bg-brand-taupe-dark transition whitespace-nowrap">
+              {uploadingHero ? <Loader2 className="w-3 h-3 animate-spin" /> : <><ImageIcon className="w-3 h-3" /> Upload</>}
+              <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) onHeroUpload(e.target.files[0]); }} disabled={uploadingHero} />
+            </label>
+          </div>
+          {(heroLocalPreview || heroImageUrl) && (
+            <div className={`relative aspect-video rounded overflow-hidden bg-brand-cream border border-brand-taupe-light ${uploadingHero ? "opacity-50" : ""}`}>
+              <Image src={heroLocalPreview || heroImageUrl} alt="Hero preview" fill className="object-cover" />
+              {uploadingHero && <div className="absolute inset-0 flex items-center justify-center bg-black/10"><Loader2 className="w-6 h-6 animate-spin text-brand-black" /></div>}
             </div>
           )}
           <div className="flex flex-wrap gap-1">

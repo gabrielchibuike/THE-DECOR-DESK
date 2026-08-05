@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { PlusCircle, Trash2, Loader2, CheckCircle, AlertCircle } from "lucide-react";
@@ -25,6 +25,13 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (localPreview) URL.revokeObjectURL(localPreview);
+    };
+  }, [localPreview]);
 
   const inputClass = "w-full px-3 py-2.5 bg-brand-cream border border-brand-taupe-light rounded-md text-brand-black text-sm focus:outline-none focus:ring-1 focus:ring-brand-taupe transition";
 
@@ -39,6 +46,10 @@ export default function ProductForm({ product }: ProductFormProps) {
 
   const handleImageUpload = async (file: File) => {
     setUploadingImage(true);
+    if (localPreview) URL.revokeObjectURL(localPreview);
+    const objectUrl = URL.createObjectURL(file);
+    setLocalPreview(objectUrl);
+
     const form = new FormData();
     form.append("file", file);
     try {
@@ -100,15 +111,16 @@ export default function ProductForm({ product }: ProductFormProps) {
       <div className="space-y-2">
         <label className="block text-xs font-semibold uppercase tracking-wider text-brand-charcoal/70">Product Image</label>
         <div className="flex gap-2">
-          <input type="text" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} placeholder="https://… or upload →" className={`${inputClass} flex-1 font-mono text-xs`} />
+          <input type="text" value={imageUrl} onChange={(e) => { setImageUrl(e.target.value); setLocalPreview(null); }} placeholder="https://… or upload →" className={`${inputClass} flex-1 font-mono text-xs`} />
           <label className="flex items-center gap-1 px-3 py-2 bg-brand-black text-brand-cream text-xs font-semibold rounded-md cursor-pointer hover:bg-brand-taupe-dark transition whitespace-nowrap">
             {uploadingImage ? <Loader2 className="w-3 h-3 animate-spin" /> : "Upload"}
             <input type="file" accept="image/*" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleImageUpload(e.target.files[0]); }} disabled={uploadingImage} />
           </label>
         </div>
-        {imageUrl && (
-          <div className="relative h-48 w-full rounded-md overflow-hidden bg-brand-cream border border-brand-taupe-light">
-            <Image src={imageUrl} alt="Product preview" fill className="object-cover" />
+        {(localPreview || imageUrl) && (
+          <div className={`relative h-48 w-full rounded-md overflow-hidden bg-brand-cream border border-brand-taupe-light ${uploadingImage ? "opacity-50" : ""}`}>
+            <Image src={localPreview || imageUrl} alt="Product preview" fill className="object-cover" />
+            {uploadingImage && <div className="absolute inset-0 flex items-center justify-center bg-black/10"><Loader2 className="w-6 h-6 animate-spin text-brand-black" /></div>}
           </div>
         )}
       </div>

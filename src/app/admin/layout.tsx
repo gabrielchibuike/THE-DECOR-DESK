@@ -12,9 +12,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   }
 
   return (
-    <div className="min-h-screen bg-brand-cream flex">
+    <div className="min-h-screen bg-brand-cream flex flex-col md:flex-row">
       <AdminSidebar userEmail={user.email ?? ""} />
-      <main className="flex-1 overflow-auto font-sans">
+      <main className="flex-1 overflow-auto font-sans flex flex-col">
         {children}
       </main>
     </div>

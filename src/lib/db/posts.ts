@@ -4,7 +4,15 @@ export type ContentBlockType =
   | { type: "paragraph"; text: string }
   | { type: "heading"; level: 2 | 3; text: string }
   | { type: "image"; url: string; alt: string; caption?: string }
-  | { type: "product_block"; productId: string }
+  | { 
+      type: "product_block"; 
+      productId?: string;
+      productCategory?: string;
+      productName?: string;
+      productImage?: string;
+      retailerName?: string;
+      affiliateUrl?: string;
+    }
   | { type: "divider" };
 
 export interface Post {
