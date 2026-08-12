@@ -3,6 +3,7 @@ import { Playfair_Display, Inter } from "next/font/google";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
+import { Analytics } from "@vercel/analytics/next"
 import { getAllCategories } from "@/lib/db/categories";
 import "./globals.css";
 
@@ -43,9 +44,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="en" className={`${playfair.variable} ${inter.variable}`}>
       <body className="font-sans bg-brand-cream text-brand-charcoal antialiased min-h-screen flex flex-col selection:bg-brand-taupe-light selection:text-brand-black">
-        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
-          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
-        )}
+        <Analytics />
         <Header categories={categories} />
         <main className="flex-grow flex flex-col">{children}</main>
         <Footer />
