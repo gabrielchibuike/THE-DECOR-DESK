@@ -3,7 +3,8 @@ import Image from "next/image";
 import { getAllPosts, getFeaturedPost } from "@/lib/db/posts";
 import { getAllCategories } from "@/lib/db/categories";
 import EmailSignup from "@/components/EmailSignup";
-import { Search, ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Star } from "lucide-react";
+import { stylesList } from "@/data/styles";
 
 export const revalidate = 60; // ISR: revalidate every 60s
 
@@ -55,7 +56,7 @@ export default async function Home() {
             Discover beautiful home decor ideas, affordable finds, styling tips, and practical inspiration to create a home you love—without the designer price tag.
           </p>
           <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
-            <Link href="/blog" className="px-8 py-3.5 bg-brand-black text-brand-cream text-xs font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-dark transition duration-300 w-full sm:w-auto">
+            <Link href="/rooms" className="px-8 py-3.5 bg-brand-black text-brand-cream text-xs font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-dark transition duration-300 w-full sm:w-auto">
               Explore Decor Ideas
             </Link>
             <Link href="/shop-my-finds" className="px-8 py-3.5 bg-brand-cream border border-brand-taupe text-brand-black text-xs font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-light/50 transition duration-300 w-full sm:w-auto">
@@ -67,13 +68,19 @@ export default async function Home() {
 
       {/* Explore by Room */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
-        <div className="text-center space-y-2">
-          <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-brand-black">
-            Explore by Room
-          </h2>
-          <p className="text-xs md:text-sm text-brand-charcoal/70 uppercase tracking-widest">
-            Find inspiration for every space in your home
-          </p>
+        <div className="flex justify-between items-end border-b border-brand-taupe-light/60 pb-3">
+          <div className="space-y-1">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-brand-black">
+              Explore by Room
+            </h2>
+            <p className="text-xs text-brand-charcoal/70 uppercase tracking-widest">
+              Find inspiration for every space in your home
+            </p>
+          </div>
+          <Link href="/rooms" className="text-xs font-semibold uppercase tracking-wider text-brand-taupe-dark hover:text-brand-black flex items-center gap-1 group transition-colors">
+            <span>View All Rooms</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {roomCategories.map((cat) => (
@@ -101,7 +108,35 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Featured Post */}
+      {/* Explore by Style */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
+        <div className="flex justify-between items-end border-b border-brand-taupe-light/60 pb-3">
+          <div className="space-y-1">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-brand-black">
+              Explore by Style
+            </h2>
+            <p className="text-xs text-brand-charcoal/70 uppercase tracking-widest">
+              Discover your interior design aesthetic
+            </p>
+          </div>
+          <Link href="/styles" className="text-xs font-semibold uppercase tracking-wider text-brand-taupe-dark hover:text-brand-black flex items-center gap-1 group transition-colors">
+            <span>View All Styles</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {stylesList.map((style) => (
+            <Link key={style.slug} href={`/styles/${style.slug}`} className="group block text-center space-y-3">
+              <div className="relative aspect-square rounded-full overflow-hidden border-2 border-brand-taupe-light/40 group-hover:border-brand-taupe transition-colors duration-300 mx-auto w-28 h-28 md:w-32 md:h-32">
+                <Image src={style.imageUrl} alt={style.name} fill sizes="130px" className="object-cover transition-transform duration-500 group-hover:scale-110" />
+              </div>
+              <h3 className="font-serif text-sm font-bold text-brand-black group-hover:text-brand-taupe-dark transition-colors">{style.name}</h3>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured Editorial */}
       {featuredPost && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
           <div className="flex justify-between items-end border-b border-brand-taupe-light/60 pb-3">
@@ -119,7 +154,7 @@ export default async function Home() {
             </Link>
             <div className="space-y-4 md:px-4">
               <div className="flex items-center gap-2 text-[10px] md:text-xs font-semibold tracking-widest uppercase text-brand-taupe-dark">
-                <span>Featured Post</span>
+                <span>Featured Editorial</span>
                 <span className="h-1 w-1 rounded-full bg-brand-taupe" />
                 <time>{featuredDate}</time>
               </div>
@@ -137,11 +172,11 @@ export default async function Home() {
         </section>
       )}
 
-      {/* Recent Posts */}
+      {/* Latest Articles */}
       {recentPosts.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
           <div className="text-left border-b border-brand-taupe-light/60 pb-3">
-            <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-black">Latest from the Blog</h2>
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-black">Latest Editorial Articles</h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {recentPosts.map((post) => (
@@ -182,11 +217,22 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Decor Resources Worth Having */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8 pt-10">
+      {/* Free Resource Lead Magnet */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <EmailSignup
+          title="Get the Free Home Decor Guide"
+          description="A practical guide to creating a beautiful, elevated home without overspending. Learn style discovery, color palettes, and budget planning."
+          buttonText="Send Me the Free Guide"
+          leadMagnetName="The Elevated Home Starter Guide"
+        />
+      </section>
+
+      {/* Digital Product Promotion */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8 pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-brand-taupe-light/20 border border-brand-taupe-light rounded-lg overflow-hidden p-6 md:p-10 shadow-sm">
           <div className="space-y-5">
-            <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-black">Decor Resources Worth Having</h2>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-brand-taupe-dark">Digital Product</span>
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-black">The Elevated Home Decor Blueprint</h2>
             <p className="text-sm md:text-base text-brand-charcoal/80 leading-relaxed">
               A practical room-by-room system for creating a beautiful, elevated home without wasting money on decor that doesn't work together.
             </p>
@@ -197,36 +243,25 @@ export default async function Home() {
             </div>
           </div>
           <Link href="/digital-products/elevated-home-decor-blueprint" className="block relative aspect-video md:aspect-[4/3] rounded-md overflow-hidden border border-brand-taupe-light/50 shadow-sm group">
-            {/* Placeholder image for the digital product */}
             <div className="absolute inset-0 bg-brand-cream flex flex-col items-center justify-center space-y-2 p-6 text-center group-hover:bg-brand-warmwhite transition-colors duration-300">
               <span className="font-serif text-2xl font-bold text-brand-black">The Elevated Home</span>
               <span className="font-sans text-xs uppercase tracking-widest text-brand-taupe-dark">Decor Blueprint</span>
               <div className="mt-4 px-4 py-2 border-2 border-brand-taupe-light text-brand-charcoal/50 font-serif italic text-sm">
-                PDF Guide & Worksheets
+                50+ Page PDF Guide & Worksheets
               </div>
             </div>
           </Link>
         </div>
       </section>
-
-      {/* Newsletter */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <EmailSignup
-          title="Get the Free Home Decor Guide"
-          description="A practical guide to creating a beautiful, elevated home without overspending. Learn style discovery, color palettes, and budget planning."
-          buttonText="Send Me the Guide"
-          leadMagnetName="The Elevated Home Starter Guide"
-        />
-      </section>
     </div>
   );
 }
 
-// Inline card to avoid circular imports — same design as BlogPostCard but data-shape agnostic
+// Inline card component
 function BlogPostCard({ post }: { post: any }) {
   const cat = post.categories;
-  const catSlug = cat?.slug ?? "";
-  const catName = cat?.name ?? catSlug;
+  const catSlug = cat?.slug ?? "bathroom-ideas";
+  const catName = cat?.name ?? "Decor";
   const date = post.published_at
     ? new Date(post.published_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })
     : "";

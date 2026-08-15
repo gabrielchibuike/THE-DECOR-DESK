@@ -3,7 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ChevronDown, Search } from "lucide-react";
+import { Menu, X, ChevronDown } from "lucide-react";
+import { stylesList } from "@/data/styles";
 
 interface Category {
   id: string;
@@ -18,17 +19,21 @@ interface HeaderProps {
 
 export default function Header({ categories }: HeaderProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [decorDropdownOpen, setDecorDropdownOpen] = useState(false);
+  const [roomsDropdownOpen, setRoomsDropdownOpen] = useState(false);
+  const [stylesDropdownOpen, setStylesDropdownOpen] = useState(false);
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
   const pathname = usePathname();
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Shopping Guides", href: "/shopping-guides" },
-    { name: "Free Resources", href: "/free-resources" },
-    { name: "Digital Products", href: "/digital-products" },
-    { name: "About", href: "/about" },
+  const rooms = [
+    { id: "r1", name: "Bathroom", slug: "bathroom-ideas" },
+    { id: "r2", name: "Bedroom", slug: "bedroom-ideas" },
+    { id: "r3", name: "Living Room", slug: "living-room-ideas" },
+    { id: "r4", name: "Kitchen", slug: "kitchen-ideas" },
+    { id: "r5", name: "Laundry", slug: "laundry-room-ideas" },
+    { id: "r6", name: "Apartment", slug: "apartment-living-room-ideas" },
   ];
+
+  const styles = stylesList;
 
   const shopCategories = [
     { name: "Bedroom Finds", href: "/shop-my-finds/bedroom-finds" },
@@ -39,21 +44,15 @@ export default function Header({ categories }: HeaderProps) {
     { name: "Organization", href: "/shop-my-finds/organization" },
   ];
 
-  // Static room/style lists matching the actual DB slugs — no DB migration required
-  const rooms = [
-    { id: "r1", name: "Bathroom",    slug: "bathroom-ideas" },
-    { id: "r2", name: "Bedroom",     slug: "bedroom-ideas" },
-    { id: "r3", name: "Living Room", slug: "living-room-ideas" },
-    { id: "r4", name: "Kitchen",     slug: "kitchen-ideas" },
-    { id: "r5", name: "Laundry",     slug: "laundry-room-ideas" },
-    { id: "r6", name: "Apartment",   slug: "apartment-living-room-ideas" },
-  ];
-
-  const styles = categories.filter(c => c.type === 'style');
-
   const isActive = (href: string) => {
     if (href === "/") return pathname === "/";
     return pathname.startsWith(href);
+  };
+
+  const closeAllDropdowns = () => {
+    setRoomsDropdownOpen(false);
+    setStylesDropdownOpen(false);
+    setShopDropdownOpen(false);
   };
 
   return (
@@ -61,103 +60,177 @@ export default function Header({ categories }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           <div className="flex-shrink-0">
-            <Link href="/" className="group">
+            <Link href="/" className="group" onClick={closeAllDropdowns}>
               <span className="font-serif text-2xl font-bold tracking-tight text-brand-black group-hover:text-brand-taupe-dark transition-colors duration-300">
                 THE DECOR <span className="text-brand-taupe font-normal font-sans text-lg tracking-widest uppercase ml-1">DESK</span>
               </span>
             </Link>
           </div>
 
-          {/* Desktop Nav */}
-          <nav className="hidden md:flex space-x-6 items-center">
-            {navLinks.map((link, idx) => {
-              if (idx === 1) { // Insert dropdowns after Home
-                return (
-                  <div key="dropdowns" className="flex items-center space-x-6">
-                    {/* Decor Ideas Dropdown */}
-                    <div className="relative">
-                      <button
-                        onClick={() => { setDecorDropdownOpen(!decorDropdownOpen); setShopDropdownOpen(false); }}
-                        className="flex items-center space-x-1 text-[13px] font-medium tracking-wide uppercase text-brand-charcoal/70 hover:text-brand-black transition-colors duration-200 focus:outline-none"
-                      >
-                        <span>Decor Ideas</span>
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${decorDropdownOpen ? "rotate-180" : ""}`} />
-                      </button>
-                      {decorDropdownOpen && (
-                        <>
-                          <div className="fixed inset-0 z-10" onClick={() => setDecorDropdownOpen(false)} />
-                          <div className="absolute left-0 mt-3 w-[400px] rounded-md shadow-xl bg-brand-warmwhite border border-brand-taupe-light z-20 p-4 origin-top-left flex gap-6">
-                            <div className="flex-1">
-                              <h4 className="text-[10px] font-semibold text-brand-taupe-dark uppercase tracking-widest mb-2 border-b border-brand-taupe-light/50 pb-1">By Room</h4>
-                              {rooms.map((cat) => (
-                                <Link key={cat.id} href={`/blog/${cat.slug}`} onClick={() => setDecorDropdownOpen(false)} className="block py-1.5 text-xs text-brand-charcoal hover:text-brand-black transition-colors">
-                                  {cat.name}
-                                </Link>
-                              ))}
-                            </div>
-                            <div className="flex-1">
-                              <h4 className="text-[10px] font-semibold text-brand-taupe-dark uppercase tracking-widest mb-2 border-b border-brand-taupe-light/50 pb-1">By Style</h4>
-                              {styles.map((cat) => (
-                                <Link key={cat.id} href={`/blog/${cat.slug}`} onClick={() => setDecorDropdownOpen(false)} className="block py-1.5 text-xs text-brand-charcoal hover:text-brand-black transition-colors">
-                                  {cat.name}
-                                </Link>
-                              ))}
-                            </div>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    {/* Shop My Finds Dropdown */}
-                    <div className="relative">
-                      <button
-                        onClick={() => { setShopDropdownOpen(!shopDropdownOpen); setDecorDropdownOpen(false); }}
-                        className="flex items-center space-x-1 text-[13px] font-medium tracking-wide uppercase text-brand-charcoal/70 hover:text-brand-black transition-colors duration-200 focus:outline-none"
-                      >
-                        <span>Shop My Finds</span>
-                        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${shopDropdownOpen ? "rotate-180" : ""}`} />
-                      </button>
-                      {shopDropdownOpen && (
-                        <>
-                          <div className="fixed inset-0 z-10" onClick={() => setShopDropdownOpen(false)} />
-                          <div className="absolute left-0 mt-3 w-48 rounded-md shadow-xl bg-brand-warmwhite border border-brand-taupe-light z-20 py-2 origin-top-left">
-                            <Link href="/shop-my-finds" onClick={() => setShopDropdownOpen(false)} className="block px-4 py-2 text-xs font-semibold text-brand-black bg-brand-cream border-b border-brand-taupe-light/50 mb-1">
-                              View All Finds
-                            </Link>
-                            {shopCategories.map((cat) => (
-                              <Link key={cat.name} href={cat.href} onClick={() => setShopDropdownOpen(false)} className="block px-4 py-1.5 text-xs text-brand-charcoal hover:bg-brand-cream hover:text-brand-black transition-colors">
-                                {cat.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                    <Link
-                      href={link.href}
-                      className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${isActive(link.href) ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"}`}
-                    >
-                      {link.name}
-                    </Link>
-                  </div>
-                );
-              }
-              return (
-                <Link
-                  key={link.name}
-                  href={link.href}
-                  className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${isActive(link.href) ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"}`}
-                >
-                  {link.name}
-                </Link>
-              );
-            })}
-          </nav>
+          {/* Desktop Nav: Home | Rooms | Styles | Shop My Finds | Free Resources | About */}
+          <nav className="hidden md:flex space-x-7 items-center">
+            <Link
+              href="/"
+              className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${
+                isActive("/") && pathname === "/" ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"
+              }`}
+            >
+              Home
+            </Link>
 
-          {/* <div className="hidden md:flex items-center space-x-4">
-            <button aria-label="Search" className="text-brand-charcoal/70 hover:text-brand-black transition-colors duration-200">
-              <Search className="w-5 h-5" />
-            </button>
-          </div> */}
+            {/* Rooms Dropdown */}
+            <div className="relative">
+              <div className="flex items-center space-x-1">
+                <Link
+                  href="/rooms"
+                  onClick={closeAllDropdowns}
+                  className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${
+                    isActive("/rooms") ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"
+                  }`}
+                >
+                  Rooms
+                </Link>
+                <button
+                  onClick={() => {
+                    setRoomsDropdownOpen(!roomsDropdownOpen);
+                    setStylesDropdownOpen(false);
+                    setShopDropdownOpen(false);
+                  }}
+                  className="text-brand-charcoal/70 hover:text-brand-black focus:outline-none p-1"
+                >
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${roomsDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+              </div>
+              {roomsDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={closeAllDropdowns} />
+                  <div className="absolute left-0 mt-3 w-52 rounded-md shadow-xl bg-brand-warmwhite border border-brand-taupe-light z-20 py-2 origin-top-left">
+                    <Link href="/rooms" onClick={closeAllDropdowns} className="block px-4 py-2 text-xs font-semibold text-brand-black bg-brand-cream border-b border-brand-taupe-light/50 mb-1">
+                      All Rooms Overview
+                    </Link>
+                    {rooms.map((room) => (
+                      <Link
+                        key={room.id}
+                        href={`/blog/${room.slug}`}
+                        onClick={closeAllDropdowns}
+                        className="block px-4 py-1.5 text-xs text-brand-charcoal hover:bg-brand-cream hover:text-brand-black transition-colors"
+                      >
+                        {room.name}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Styles Dropdown */}
+            <div className="relative">
+              <div className="flex items-center space-x-1">
+                <Link
+                  href="/styles"
+                  onClick={closeAllDropdowns}
+                  className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${
+                    isActive("/styles") ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"
+                  }`}
+                >
+                  Styles
+                </Link>
+                <button
+                  onClick={() => {
+                    setStylesDropdownOpen(!stylesDropdownOpen);
+                    setRoomsDropdownOpen(false);
+                    setShopDropdownOpen(false);
+                  }}
+                  className="text-brand-charcoal/70 hover:text-brand-black focus:outline-none p-1"
+                >
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${stylesDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+              </div>
+              {stylesDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={closeAllDropdowns} />
+                  <div className="absolute left-0 mt-3 w-52 rounded-md shadow-xl bg-brand-warmwhite border border-brand-taupe-light z-20 py-2 origin-top-left">
+                    <Link href="/styles" onClick={closeAllDropdowns} className="block px-4 py-2 text-xs font-semibold text-brand-black bg-brand-cream border-b border-brand-taupe-light/50 mb-1">
+                      All Design Styles
+                    </Link>
+                    {styles.map((style) => (
+                      <Link
+                        key={style.slug}
+                        href={`/styles/${style.slug}`}
+                        onClick={closeAllDropdowns}
+                        className="block px-4 py-1.5 text-xs text-brand-charcoal hover:bg-brand-cream hover:text-brand-black transition-colors"
+                      >
+                        {style.name}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Shop My Finds Dropdown */}
+            <div className="relative">
+              <div className="flex items-center space-x-1">
+                <Link
+                  href="/shop-my-finds"
+                  onClick={closeAllDropdowns}
+                  className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${
+                    isActive("/shop-my-finds") || isActive("/shop") ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"
+                  }`}
+                >
+                  Shop My Finds
+                </Link>
+                <button
+                  onClick={() => {
+                    setShopDropdownOpen(!shopDropdownOpen);
+                    setRoomsDropdownOpen(false);
+                    setStylesDropdownOpen(false);
+                  }}
+                  className="text-brand-charcoal/70 hover:text-brand-black focus:outline-none p-1"
+                >
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${shopDropdownOpen ? "rotate-180" : ""}`} />
+                </button>
+              </div>
+              {shopDropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-10" onClick={closeAllDropdowns} />
+                  <div className="absolute left-0 mt-3 w-48 rounded-md shadow-xl bg-brand-warmwhite border border-brand-taupe-light z-20 py-2 origin-top-left">
+                    <Link href="/shop-my-finds" onClick={closeAllDropdowns} className="block px-4 py-2 text-xs font-semibold text-brand-black bg-brand-cream border-b border-brand-taupe-light/50 mb-1">
+                      View All Finds
+                    </Link>
+                    {shopCategories.map((cat) => (
+                      <Link
+                        key={cat.name}
+                        href={cat.href}
+                        onClick={closeAllDropdowns}
+                        className="block px-4 py-1.5 text-xs text-brand-charcoal hover:bg-brand-cream hover:text-brand-black transition-colors"
+                      >
+                        {cat.name}
+                      </Link>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <Link
+              href="/free-resources"
+              className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${
+                isActive("/free-resources") ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"
+              }`}
+            >
+              Free Resources
+            </Link>
+
+            <Link
+              href="/about"
+              className={`text-[13px] font-medium tracking-wide uppercase transition-colors duration-200 hover:text-brand-black ${
+                isActive("/about") ? "text-brand-black border-b-2 border-brand-taupe pb-1" : "text-brand-charcoal/70"
+              }`}
+            >
+              About
+            </Link>
+          </nav>
 
           {/* Mobile Toggle */}
           <div className="flex md:hidden">
@@ -171,38 +244,49 @@ export default function Header({ categories }: HeaderProps) {
       {/* Mobile Drawer */}
       {isOpen && (
         <div className="md:hidden border-b border-brand-taupe-light bg-brand-cream">
-          <div className="px-2 pt-2 pb-6 space-y-1 sm:px-3">
-            {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsOpen(false)}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${isActive(link.href) ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"
-                  }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-            <div className="border-t border-brand-taupe-light/50 my-2 pt-2">
-              <span className="px-3 text-[10px] font-semibold text-brand-taupe-dark uppercase tracking-widest block mb-1 mt-2">By Room</span>
-              {rooms.map((cat) => (
-                <Link key={cat.id} href={`/blog/${cat.slug}`} onClick={() => setIsOpen(false)} className="block px-6 py-1.5 text-sm text-brand-charcoal hover:bg-brand-taupe-light/50 rounded-md">
-                  {cat.name}
-                </Link>
-              ))}
-              <span className="px-3 text-[10px] font-semibold text-brand-taupe-dark uppercase tracking-widest block mb-1 mt-4">By Style</span>
-              {styles.map((cat) => (
-                <Link key={cat.id} href={`/blog/${cat.slug}`} onClick={() => setIsOpen(false)} className="block px-6 py-1.5 text-sm text-brand-charcoal hover:bg-brand-taupe-light/50 rounded-md">
-                  {cat.name}
-                </Link>
-              ))}
-              <span className="px-3 text-[10px] font-semibold text-brand-taupe-dark uppercase tracking-widest block mb-1 mt-4">Shop My Finds</span>
-              {shopCategories.map((cat) => (
-                <Link key={cat.name} href={cat.href} onClick={() => setIsOpen(false)} className="block px-6 py-1.5 text-sm text-brand-charcoal hover:bg-brand-taupe-light/50 rounded-md">
-                  {cat.name}
-                </Link>
-              ))}
-            </div>
+          <div className="px-4 pt-3 pb-6 space-y-2">
+            <Link
+              href="/"
+              onClick={() => setIsOpen(false)}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/") && pathname === "/" ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"}`}
+            >
+              Home
+            </Link>
+            <Link
+              href="/rooms"
+              onClick={() => setIsOpen(false)}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/rooms") ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"}`}
+            >
+              Rooms
+            </Link>
+            <Link
+              href="/styles"
+              onClick={() => setIsOpen(false)}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/styles") ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"}`}
+            >
+              Styles
+            </Link>
+            <Link
+              href="/shop-my-finds"
+              onClick={() => setIsOpen(false)}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/shop-my-finds") ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"}`}
+            >
+              Shop My Finds
+            </Link>
+            <Link
+              href="/free-resources"
+              onClick={() => setIsOpen(false)}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/free-resources") ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"}`}
+            >
+              Free Resources
+            </Link>
+            <Link
+              href="/about"
+              onClick={() => setIsOpen(false)}
+              className={`block px-3 py-2 rounded-md text-base font-medium ${isActive("/about") ? "bg-brand-taupe-light text-brand-black" : "text-brand-charcoal hover:bg-brand-taupe-light/50"}`}
+            >
+              About
+            </Link>
           </div>
         </div>
       )}

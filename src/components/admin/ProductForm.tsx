@@ -18,6 +18,9 @@ export default function ProductForm({ product }: ProductFormProps) {
   const [name, setName] = useState(product?.name ?? "");
   const [description, setDescription] = useState(product?.description ?? "");
   const [imageUrl, setImageUrl] = useState(product?.image_url ?? "");
+  const [categorySlug, setCategorySlug] = useState(product?.category_slug ?? "");
+  const [room, setRoom] = useState(product?.room ?? "");
+  const [style, setStyle] = useState(product?.style ?? "");
   const [retailers, setRetailers] = useState<Retailer[]>(
     product?.retailers ?? [{ retailerName: "", affiliateUrl: "", price: "" }]
   );
@@ -68,6 +71,9 @@ export default function ProductForm({ product }: ProductFormProps) {
       name,
       description: description || null,
       image_url: imageUrl || null,
+      category_slug: categorySlug || null,
+      room: room || null,
+      style: style || null,
       retailers: retailers.filter((r) => r.retailerName && r.affiliateUrl),
     };
     try {
@@ -105,6 +111,46 @@ export default function ProductForm({ product }: ProductFormProps) {
       <div className="space-y-1.5">
         <label className="block text-xs font-semibold uppercase tracking-wider text-brand-charcoal/70">Description</label>
         <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Short description shown in product blocks…" className={`${inputClass} resize-none`} />
+      </div>
+
+      {/* Category / Room / Style Taxonomy */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-brand-cream border border-brand-taupe-light/50 rounded-md">
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-brand-charcoal/70">Shop Category</label>
+          <select value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)} className={inputClass}>
+            <option value="">None / General</option>
+            <option value="bedroom-finds">Bedroom Finds</option>
+            <option value="living-room-finds">Living Room Finds</option>
+            <option value="bathroom-finds">Bathroom Finds</option>
+            <option value="kitchen-finds">Kitchen Finds</option>
+            <option value="lighting">Lighting</option>
+            <option value="organization">Organization</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-brand-charcoal/70">Room</label>
+          <select value={room} onChange={(e) => setRoom(e.target.value)} className={inputClass}>
+            <option value="">None / All Rooms</option>
+            <option value="bathroom">Bathroom</option>
+            <option value="bedroom">Bedroom</option>
+            <option value="living-room">Living Room</option>
+            <option value="kitchen">Kitchen</option>
+            <option value="laundry">Laundry</option>
+            <option value="apartment">Apartment</option>
+          </select>
+        </div>
+        <div className="space-y-1">
+          <label className="block text-xs font-semibold uppercase tracking-wider text-brand-charcoal/70">Style</label>
+          <select value={style} onChange={(e) => setStyle(e.target.value)} className={inputClass}>
+            <option value="">None / All Styles</option>
+            <option value="japandi">Japandi</option>
+            <option value="warm-luxury">Warm Luxury</option>
+            <option value="french-country">French Country</option>
+            <option value="boho">Boho</option>
+            <option value="grandmillennial">Grandmillennial</option>
+            <option value="vintage">Vintage</option>
+          </select>
+        </div>
       </div>
 
       {/* Image */}

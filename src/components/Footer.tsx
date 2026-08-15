@@ -37,8 +37,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/blog" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
-                  Decor Ideas
+                <Link href="/rooms" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
+                  Rooms
+                </Link>
+              </li>
+              <li>
+                <Link href="/styles" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
+                  Styles
                 </Link>
               </li>
               <li>
@@ -47,18 +52,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/shopping-guides" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
-                  Shopping Guides
-                </Link>
-              </li>
-              <li>
                 <Link href="/free-resources" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
                   Free Resources
-                </Link>
-              </li>
-              <li>
-                <Link href="/digital-products" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
-                  Digital Products
                 </Link>
               </li>
               <li>

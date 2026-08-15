@@ -13,6 +13,8 @@ export interface Product {
   image_url: string | null;
   retailers: RetailerLink[];
   category_slug?: string | null;
+  room?: string | null;
+  style?: string | null;
   click_count: number;
   created_at: string;
 }
