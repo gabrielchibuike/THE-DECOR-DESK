@@ -34,13 +34,13 @@ export default async function DigitalProductPage({ params }: PageProps) {
           {product.imageUrl ? (
             <Image src={product.imageUrl} alt={product.name} fill className="object-cover" />
           ) : (
-             <div className="text-center space-y-4">
-               <div className="w-40 h-52 bg-brand-warmwhite border border-brand-taupe-light shadow-lg mx-auto flex items-center justify-center">
-                 <span className="font-serif font-bold text-brand-taupe text-4xl">G</span>
-               </div>
-               <span className="font-serif text-2xl font-bold text-brand-black block">{product.name}</span>
-               <span className="text-xs uppercase tracking-widest text-brand-taupe-dark">PDF Guide</span>
-             </div>
+            <div className="text-center space-y-4">
+              <div className="w-40 h-52 bg-brand-warmwhite border border-brand-taupe-light shadow-lg mx-auto flex items-center justify-center">
+                <span className="font-serif font-bold text-brand-taupe text-4xl">G</span>
+              </div>
+              <span className="font-serif text-2xl font-bold text-brand-black block">{product.name}</span>
+              <span className="text-xs uppercase tracking-widest text-brand-taupe-dark">PDF Guide</span>
+            </div>
           )}
         </div>
 
@@ -56,7 +56,7 @@ export default async function DigitalProductPage({ params }: PageProps) {
             <p className="text-base text-brand-charcoal/80 leading-relaxed">
               {product.description}
             </p>
-            <a 
+            <a
               href={product.checkoutUrl}
               className="inline-block w-full text-center px-8 py-4 bg-brand-black text-brand-cream text-sm font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-dark transition duration-300 mt-4"
             >
