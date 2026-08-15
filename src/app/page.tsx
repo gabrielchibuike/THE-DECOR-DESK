@@ -27,6 +27,16 @@ export default async function Home() {
 
   const featuredCatSlug = featuredPost?.categories?.slug ?? "";
 
+  // Static room definitions — slugs match the actual Supabase categories table
+  const roomCategories = [
+    { name: "Bathroom", slug: "bathroom-ideas", img: "/images/categories/bathroom.jpg", description: "Refresh your bathroom with beautiful, spa-inspired styling ideas." },
+    { name: "Bedroom", slug: "bedroom-ideas", img: "/images/categories/bedroom.jpg", description: "Create a cozy, restful sanctuary with curated bedroom inspiration." },
+    { name: "Living Room", slug: "living-room-ideas", img: "/images/categories/living-room.jpg", description: "Style a warm, inviting living room you'll love coming home to." },
+    { name: "Kitchen", slug: "kitchen-ideas", img: "/images/categories/kitchen.jpg", description: "Elevate your kitchen with warm tones, beautiful hardware, and practical styling." },
+    { name: "Laundry", slug: "laundry-room-ideas", img: "/images/categories/laundry-room.jpg", description: "Make laundry day beautiful with clever, organized, and stylish spaces." },
+    { name: "Apartment", slug: "apartment-living-room-ideas", img: "/images/categories/apartment-living-room.jpg", description: "Maximize small spaces with renter-friendly decor and clever layouts." },
+  ];
+
   return (
     <div className="flex flex-col space-y-20 pb-20">
       {/* Hero */}
@@ -37,53 +47,54 @@ export default async function Home() {
             <span>Living Beautifully, Curated Daily</span>
           </div>
           <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-brand-black leading-tight">
-            Curated Inspiration for the{" "}
+            Create a Beautiful Home{" "}
             <br className="hidden sm:inline" />
-            <span className="text-brand-taupe-dark italic font-normal">Modern &amp; Organic</span> Home
+            <span className="text-brand-taupe-dark italic font-normal">Without Overspending</span>
           </h1>
           <p className="max-w-xl mx-auto text-sm md:text-base text-brand-charcoal/85 leading-relaxed">
-            Discover styling secrets, organizing systems, and shop the exact pieces featured across our Pinterest collections.
+            Discover beautiful home decor ideas, affordable finds, styling tips, and practical inspiration to create a home you love—without the designer price tag.
           </p>
-          {/* <div className="max-w-md mx-auto pt-4 relative">
-            <input
-              type="text"
-              placeholder="Search design styles, laundry ideas, bathroom upgrades..."
-              className="w-full pl-11 pr-4 py-3.5 bg-brand-cream border border-brand-taupe-light rounded-md text-brand-black placeholder-brand-charcoal/45 text-sm focus:outline-none focus:ring-1 focus:ring-brand-taupe focus:border-brand-taupe transition-all shadow-sm"
-            />
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-brand-charcoal/40" />
-          </div> */}
+          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4">
+            <Link href="/blog" className="px-8 py-3.5 bg-brand-black text-brand-cream text-xs font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-dark transition duration-300 w-full sm:w-auto">
+              Explore Decor Ideas
+            </Link>
+            <Link href="/shop-my-finds" className="px-8 py-3.5 bg-brand-cream border border-brand-taupe text-brand-black text-xs font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-light/50 transition duration-300 w-full sm:w-auto">
+              Shop My Finds
+            </Link>
+          </div>
         </div>
       </section>
 
-      {/* Category Tiles */}
+      {/* Explore by Room */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
         <div className="text-center space-y-2">
           <h2 className="font-serif text-2xl md:text-3xl font-bold tracking-tight text-brand-black">
-            Explore Curated Boards
+            Explore by Room
           </h2>
           <p className="text-xs md:text-sm text-brand-charcoal/70 uppercase tracking-widest">
-            Select a style board to browse archives
+            Find inspiration for every space in your home
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {categories.map((cat) => (
+          {roomCategories.map((cat) => (
             <Link
-              key={cat.id}
+              key={cat.slug}
               href={`/blog/${cat.slug}`}
               className="group relative aspect-[4/3] rounded-lg overflow-hidden border border-brand-taupe-light/50 bg-brand-cream flex flex-col justify-end p-6 shadow-sm hover:shadow-md transition-all duration-300"
             >
-              {cat.image_url && (
-                <Image
-                  src={cat.image_url}
-                  alt={cat.name}
-                  fill
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  className="object-cover transition-transform duration-500 group-hover:scale-105 brightness-[0.85] group-hover:brightness-90"
-                />
-              )}
+              <Image
+                src={cat.img}
+                alt={cat.name}
+                fill
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="object-cover transition-transform duration-500 group-hover:scale-105 brightness-[0.85] group-hover:brightness-90"
+              />
               <div className="relative bg-brand-warmwhite/90 backdrop-blur-sm border border-brand-taupe-light p-4 rounded-md text-left transition-all duration-300 group-hover:bg-brand-warmwhite">
                 <h3 className="font-serif text-base md:text-lg font-bold text-brand-black">{cat.name}</h3>
-                <p className="text-[11px] md:text-xs text-brand-charcoal/80 line-clamp-1 mt-1">{cat.description}</p>
+                <p className="text-[11px] md:text-xs text-brand-charcoal/80 line-clamp-1 mt-1 mb-2">{cat.description}</p>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-brand-taupe-dark flex items-center gap-1 group-hover:text-brand-black transition-colors">
+                  Explore Ideas <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-1" />
+                </span>
               </div>
             </Link>
           ))}
@@ -140,15 +151,73 @@ export default async function Home() {
         </section>
       )}
 
+      {/* Shop My Finds */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8">
+        <div className="flex justify-between items-end border-b border-brand-taupe-light/60 pb-3">
+          <div className="space-y-1">
+            <h2 className="font-serif text-2xl md:text-3xl font-bold text-brand-black">Shop My Finds</h2>
+            <p className="text-xs text-brand-charcoal/70 uppercase tracking-widest">Curated products for every room</p>
+          </div>
+          <Link href="/shop-my-finds" className="text-xs font-semibold uppercase tracking-wider text-brand-taupe-dark hover:text-brand-black flex items-center gap-1 group transition-colors">
+            <span>View All Finds</span>
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+          {[
+            { name: "Bedroom", slug: "bedroom-finds", img: "/images/categories/bedroom.jpg" },
+            { name: "Living Room", slug: "living-room-finds", img: "/images/categories/living-room.jpg" },
+            { name: "Bathroom", slug: "bathroom-finds", img: "/images/categories/bathroom.jpg" },
+            { name: "Kitchen", slug: "kitchen-finds", img: "/images/categories/kitchen.jpg" },
+            { name: "Lighting", slug: "lighting", img: "/images/categories/apartment-living-room.jpg" },
+            { name: "Organization", slug: "organization", img: "/images/categories/laundry-room.jpg" }
+          ].map((cat) => (
+            <Link key={cat.slug} href={`/shop-my-finds/${cat.slug}`} className="group relative aspect-square rounded-lg overflow-hidden border border-brand-taupe-light bg-brand-cream shadow-sm hover:shadow-md transition-all duration-300 flex items-center justify-center">
+              <Image src={cat.img} alt={cat.name} fill sizes="200px" className="object-cover transition-transform duration-500 group-hover:scale-105 brightness-75 group-hover:brightness-50" />
+              <h3 className="relative z-10 font-serif text-sm md:text-base font-bold text-brand-cream text-center px-2 drop-shadow-md">
+                {cat.name}
+              </h3>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* Decor Resources Worth Having */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8 pt-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-brand-taupe-light/20 border border-brand-taupe-light rounded-lg overflow-hidden p-6 md:p-10 shadow-sm">
+          <div className="space-y-5">
+            <h2 className="font-serif text-3xl md:text-4xl font-bold text-brand-black">Decor Resources Worth Having</h2>
+            <p className="text-sm md:text-base text-brand-charcoal/80 leading-relaxed">
+              A practical room-by-room system for creating a beautiful, elevated home without wasting money on decor that doesn't work together.
+            </p>
+            <div className="pt-2">
+              <Link href="/digital-products/elevated-home-decor-blueprint" className="inline-flex items-center justify-center px-6 py-3.5 bg-brand-black text-brand-cream uppercase text-xs font-semibold tracking-wider rounded-md hover:bg-brand-taupe-dark transition duration-300">
+                Get the Blueprint — $15
+              </Link>
+            </div>
+          </div>
+          <Link href="/digital-products/elevated-home-decor-blueprint" className="block relative aspect-video md:aspect-[4/3] rounded-md overflow-hidden border border-brand-taupe-light/50 shadow-sm group">
+            {/* Placeholder image for the digital product */}
+            <div className="absolute inset-0 bg-brand-cream flex flex-col items-center justify-center space-y-2 p-6 text-center group-hover:bg-brand-warmwhite transition-colors duration-300">
+              <span className="font-serif text-2xl font-bold text-brand-black">The Elevated Home</span>
+              <span className="font-sans text-xs uppercase tracking-widest text-brand-taupe-dark">Decor Blueprint</span>
+              <div className="mt-4 px-4 py-2 border-2 border-brand-taupe-light text-brand-charcoal/50 font-serif italic text-sm">
+                PDF Guide & Worksheets
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       {/* Newsletter */}
-      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <EmailSignup
-          title="Download Our Organic Mood Board Template Guide"
-          description="Looking to plan your next home update? Subscribe below to receive our exclusive Pinterest Design Pack containing 10 pre-styled color palettes, furniture layouts, and shopping worksheets for free."
+          title="Get the Free Home Decor Guide"
+          description="A practical guide to creating a beautiful, elevated home without overspending. Learn style discovery, color palettes, and budget planning."
           buttonText="Send Me the Guide"
-          leadMagnetName="Organic Mood Board Guide"
+          leadMagnetName="The Elevated Home Starter Guide"
         />
-      </section> */}
+      </section>
     </div>
   );
 }

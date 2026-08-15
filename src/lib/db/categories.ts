@@ -6,6 +6,7 @@ export interface Category {
   slug: string;
   description: string | null;
   image_url: string | null;
+  type?: 'room' | 'style'; // Optional fallback for before DB migration
   created_at: string;
 }
 
@@ -16,6 +17,24 @@ export async function getAllCategories(): Promise<Category[]> {
     .select("*")
     .order("name");
   if (error) { console.error("getAllCategories:", error.message); return []; }
+  return data ?? [];
+}
+
+export async function getCategoriesByType(type: 'room' | 'style'): Promise<Category[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("*")
+    .eq("type", type)
+    .order("name");
+  // Fallback if DB migration hasn't run yet, error might be thrown because column 'type' doesn't exist
+  if (error) { 
+    console.error("getCategoriesByType:", error.message); 
+    // Fallback logic for unmigrated DB
+    const all = await getAllCategories();
+    if (type === 'style') return all.filter(c => c.type === 'style');
+    return all.filter(c => !c.type || c.type === 'room');
+  }
   return data ?? [];
 }
 

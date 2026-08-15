@@ -12,6 +12,7 @@ export interface Product {
   description: string | null;
   image_url: string | null;
   retailers: RetailerLink[];
+  category_slug?: string | null;
   click_count: number;
   created_at: string;
 }
@@ -23,6 +24,25 @@ export async function getAllProducts(): Promise<Product[]> {
     .select("*")
     .order("name");
   if (error) { console.error("getAllProducts:", error.message); return []; }
+  return data ?? [];
+}
+
+export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("products")
+    .select("*")
+    .eq("category_slug", categorySlug)
+    .order("name");
+  
+  if (error) { 
+    if (error.message.includes("category_slug")) {
+      const all = await getAllProducts();
+      return all.filter(p => p.category_slug === categorySlug);
+    }
+    console.error("getProductsByCategory:", error.message); 
+    return [];
+  }
   return data ?? [];
 }
 

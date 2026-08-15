@@ -25,6 +25,7 @@ export interface Post {
   hero_image_url: string | null;
   content: ContentBlockType[];
   status: "draft" | "published";
+  post_type?: "editorial" | "shopping_guide";
   featured: boolean;
   published_at: string | null;
   updated_at: string;
@@ -36,9 +37,37 @@ export interface Post {
 const POST_SELECT = `
   id, title, slug, category_id, meta_description, keywords,
   hero_image_url, content, status, featured, published_at,
+  updated_at, created_at, post_type,
+  categories(id, name, slug)
+`;
+
+const POST_SELECT_FALLBACK = `
+  id, title, slug, category_id, meta_description, keywords,
+  hero_image_url, content, status, featured, published_at,
   updated_at, created_at,
   categories(id, name, slug)
 `;
+
+export async function getPostsByType(postType: "editorial" | "shopping_guide"): Promise<Post[]> {
+  const supabase = createPublicClient();
+  const { data, error } = await supabase
+    .from("posts")
+    .select(POST_SELECT)
+    .eq("status", "published")
+    .eq("post_type", postType)
+    .order("published_at", { ascending: false });
+    
+  if (error) {
+    if (error.message.includes("post_type")) {
+      const all = await getAllPosts();
+      if (postType === "shopping_guide") return all.filter(p => p.post_type === "shopping_guide");
+      return all.filter(p => !p.post_type || p.post_type === "editorial");
+    }
+    console.error("getPostsByType:", error.message);
+    return [];
+  }
+  return (data as Post[]) ?? [];
+}
 
 export async function getAllPosts(): Promise<Post[]> {
   const supabase = createPublicClient();
@@ -47,7 +76,19 @@ export async function getAllPosts(): Promise<Post[]> {
     .select(POST_SELECT)
     .eq("status", "published")
     .order("published_at", { ascending: false });
-  if (error) { console.error("getAllPosts:", error.message); return []; }
+    
+  if (error) {
+    if (error.message.includes("post_type")) {
+      const { data: fallbackData } = await supabase
+        .from("posts")
+        .select(POST_SELECT_FALLBACK)
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      return (fallbackData as Post[]) ?? [];
+    }
+    console.error("getAllPosts:", error.message);
+    return [];
+  }
   return (data as Post[]) ?? [];
 }
 
@@ -61,7 +102,21 @@ export async function getFeaturedPost(): Promise<Post | null> {
     .order("published_at", { ascending: false })
     .limit(1)
     .maybeSingle();
-  if (error) return null;
+    
+  if (error) {
+    if (error.message.includes("post_type")) {
+      const { data: fallbackData } = await supabase
+        .from("posts")
+        .select(POST_SELECT_FALLBACK)
+        .eq("status", "published")
+        .eq("featured", true)
+        .order("published_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return fallbackData as Post | null;
+    }
+    return null;
+  }
   return data as Post | null;
 }
 
@@ -71,9 +126,19 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     .from("posts")
     .select(POST_SELECT)
     .eq("slug", slug)
-    .eq("status", "published")
     .single();
-  if (error) return null;
+    
+  if (error) {
+    if (error.message.includes("post_type")) {
+      const { data: fallbackData } = await supabase
+        .from("posts")
+        .select(POST_SELECT_FALLBACK)
+        .eq("slug", slug)
+        .single();
+      return fallbackData as Post | null;
+    }
+    return null;
+  }
   return data as Post | null;
 }
 
@@ -85,7 +150,20 @@ export async function getPostsByCategory(categoryId: string): Promise<Post[]> {
     .eq("status", "published")
     .eq("category_id", categoryId)
     .order("published_at", { ascending: false });
-  if (error) { console.error("getPostsByCategory:", error.message); return []; }
+    
+  if (error) {
+    if (error.message.includes("post_type")) {
+      const { data: fallbackData } = await supabase
+        .from("posts")
+        .select(POST_SELECT_FALLBACK)
+        .eq("status", "published")
+        .eq("category_id", categoryId)
+        .order("published_at", { ascending: false });
+      return (fallbackData as Post[]) ?? [];
+    }
+    console.error("getPostsByCategory:", error.message);
+    return [];
+  }
   return (data as Post[]) ?? [];
 }
 

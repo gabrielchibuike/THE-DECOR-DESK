@@ -23,7 +23,7 @@ export default function Footer() {
               THE DECOR <span className="text-brand-taupe font-normal font-sans text-xs tracking-widest uppercase ml-1">DESK</span>
             </span>
             <p className="text-xs md:text-sm text-brand-charcoal/70 leading-relaxed max-w-sm">
-              We curate warm, organic, and elegant home decor inspiration and shopping recommendations to help you create a cozy and beautiful lifestyle retreat.
+              Beautiful home decor inspiration, affordable finds, and practical styling ideas for creating a home you love.
             </p>
           </div>
 
@@ -38,19 +38,34 @@ export default function Footer() {
               </li>
               <li>
                 <Link href="/blog" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
-                  All Blog Posts
+                  Decor Ideas
+                </Link>
+              </li>
+              <li>
+                <Link href="/shop-my-finds" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
+                  Shop My Finds
+                </Link>
+              </li>
+              <li>
+                <Link href="/shopping-guides" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
+                  Shopping Guides
+                </Link>
+              </li>
+              <li>
+                <Link href="/free-resources" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
+                  Free Resources
+                </Link>
+              </li>
+              <li>
+                <Link href="/digital-products" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
+                  Digital Products
                 </Link>
               </li>
               <li>
                 <Link href="/about" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
-                  About the Brand
+                  About
                 </Link>
               </li>
-              {/* <li>
-                <Link href="/contact" className="text-xs text-brand-charcoal/70 hover:text-brand-black transition-colors duration-150">
-                  Get in Touch
-                </Link>
-              </li> */}
             </ul>
           </div>
 
