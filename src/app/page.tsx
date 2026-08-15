@@ -228,7 +228,7 @@ export default async function Home() {
       </section>
 
       {/* Digital Product Promotion */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8 pt-6">
+      {/* <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full space-y-8 pt-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-brand-taupe-light/20 border border-brand-taupe-light rounded-lg overflow-hidden p-6 md:p-10 shadow-sm">
           <div className="space-y-5">
             <span className="text-[10px] font-bold uppercase tracking-widest text-brand-taupe-dark">Digital Product</span>
@@ -252,7 +252,7 @@ export default async function Home() {
             </div>
           </Link>
         </div>
-      </section>
+      </section> */}
     </div>
   );
 }
