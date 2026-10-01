@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
@@ -17,7 +18,12 @@ const roomCategories = [
   { name: "Apartment & Small Spaces", slug: "apartment-living-room-ideas", img: "/images/categories/apartment-living-room.jpg", description: "Maximize small square footage with multi-functional furniture and renter-friendly decor." },
 ];
 
-export default function RoomsIndexPage() {
+export default async function RoomsIndexPage() {
+  const supabase = await createClient();
+  const { data: posts } = await supabase
+    .from("posts")
+    .select("id, title, slug, status, featured, image_url, updated_at, categories(name, slug)")
+    .order("updated_at", { ascending: false });
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 space-y-12">
       <div className="text-center space-y-4 max-w-2xl mx-auto">
@@ -33,15 +39,15 @@ export default function RoomsIndexPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {roomCategories.map((cat) => (
+        {(posts ?? []).map((cat) => (
           <Link
-            key={cat.slug}
-            href={`/blog/${cat.slug}`}
+            key={cat.categories.slug}
+            href={`/blog/${cat.categories.slug}/${cat.slug}`}
             className="group relative aspect-[4/3] rounded-lg overflow-hidden border border-brand-taupe-light/50 bg-brand-cream flex flex-col justify-end p-6 shadow-sm hover:shadow-md transition-all duration-300"
           >
             <Image
-              src={cat.img}
-              alt={cat.name}
+              src={cat.image_url}
+              alt={cat.title}
               fill
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               className="object-cover transition-transform duration-500 group-hover:scale-105 brightness-[0.85] group-hover:brightness-90"

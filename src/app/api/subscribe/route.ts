@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, consent, leadMagnetName, sourcePage } = await request.json();
+    const { email, consent, leadMagnetName, sourcePage, firstName, first_name } = await request.json();
 
     if (!email) {
       return NextResponse.json({ error: "Email is required." }, { status: 400 });
@@ -39,7 +39,12 @@ export async function POST(request: NextRequest) {
     // ── 2. Mirror to Supabase subscribers table ───────────────
     const supabase = createServiceClient();
     const { error: dbError } = await supabase.from("subscribers").upsert(
-      { email, source_page: sourcePage ?? leadMagnetName ?? "unknown" },
+      {
+        email: email.toLowerCase().trim(),
+        first_name: firstName ?? first_name ?? null,
+        source: sourcePage ?? leadMagnetName ?? "unknown",
+        source_page: sourcePage ?? leadMagnetName ?? "unknown",
+      },
       { onConflict: "email" }
     );
     if (dbError) {

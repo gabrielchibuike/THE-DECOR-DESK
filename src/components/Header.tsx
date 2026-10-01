@@ -24,9 +24,10 @@ export default function Header({ categories }: HeaderProps) {
   const [shopDropdownOpen, setShopDropdownOpen] = useState(false);
   const pathname = usePathname();
 
-  const rooms = [
-    { id: "r1", name: "Bathroom", slug: "bathroom-ideas" },
-    { id: "r2", name: "Bedroom", slug: "bedroom-ideas" },
+  const dbRooms = categories ? categories.filter((c) => !c.type || c.type === 'room') : [];
+  const rooms = dbRooms.length > 0 ? dbRooms : [
+    { id: "r1", name: "Bathroom", slug: "bathrooms" },
+    { id: "r2", name: "Bedroom", slug: "Bedroom-ideas" },
     { id: "r3", name: "Living Room", slug: "living-room-ideas" },
     { id: "r4", name: "Kitchen", slug: "kitchen-ideas" },
     { id: "r5", name: "Laundry", slug: "laundry-room-ideas" },

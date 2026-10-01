@@ -28,15 +28,33 @@ export default async function Home() {
 
   const featuredCatSlug = featuredPost?.categories?.slug ?? "";
 
-  // Static room definitions — slugs match the actual Supabase categories table
-  const roomCategories = [
-    { name: "Bathroom", slug: "bathroom-ideas", img: "/images/categories/bathroom.jpg", description: "Refresh your bathroom with beautiful, spa-inspired styling ideas." },
-    { name: "Bedroom", slug: "bedroom-ideas", img: "/images/categories/bedroom.jpg", description: "Create a cozy, restful sanctuary with curated bedroom inspiration." },
-    { name: "Living Room", slug: "living-room-ideas", img: "/images/categories/living-room.jpg", description: "Style a warm, inviting living room you'll love coming home to." },
-    { name: "Kitchen", slug: "kitchen-ideas", img: "/images/categories/kitchen.jpg", description: "Elevate your kitchen with warm tones, beautiful hardware, and practical styling." },
-    { name: "Laundry", slug: "laundry-room-ideas", img: "/images/categories/laundry-room.jpg", description: "Make laundry day beautiful with clever, organized, and stylish spaces." },
-    { name: "Apartment", slug: "apartment-living-room-ideas", img: "/images/categories/apartment-living-room.jpg", description: "Maximize small spaces with renter-friendly decor and clever layouts." },
-  ];
+  const dbRoomCategories = categories ? categories.filter((c) => !c.type || c.type === 'room') : [];
+  const DEFAULT_ROOM_IMAGES: Record<string, string> = {
+    "bathrooms": "/images/categories/bathroom.jpg",
+    "bathroom-ideas": "/images/categories/bathroom.jpg",
+    "Bedroom-ideas": "/images/categories/bedroom.jpg",
+    "bedroom-ideas": "/images/categories/bedroom.jpg",
+    "living-room-ideas": "/images/categories/living-room.jpg",
+    "kitchen-ideas": "/images/categories/kitchen.jpg",
+    "laundry-room-ideas": "/images/categories/laundry-room.jpg",
+    "apartment-living-room-ideas": "/images/categories/apartment-living-room.jpg",
+  };
+
+  const roomCategories = dbRoomCategories.length > 0
+    ? dbRoomCategories.map((c) => ({
+        name: c.name,
+        slug: c.slug,
+        img: c.image_url || DEFAULT_ROOM_IMAGES[c.slug] || "/images/categories/living-room.jpg",
+        description: c.description || `Explore curated styling tips and inspiration for your ${c.name.toLowerCase()}.`,
+      }))
+    : [
+        { name: "Bathroom", slug: "bathrooms", img: "/images/categories/bathroom.jpg", description: "Refresh your bathroom with beautiful, spa-inspired styling ideas." },
+        { name: "Bedroom", slug: "Bedroom-ideas", img: "/images/categories/bedroom.jpg", description: "Create a cozy, restful sanctuary with curated bedroom inspiration." },
+        { name: "Living Room", slug: "living-room-ideas", img: "/images/categories/living-room.jpg", description: "Style a warm, inviting living room you'll love coming home to." },
+        { name: "Kitchen", slug: "kitchen-ideas", img: "/images/categories/kitchen.jpg", description: "Elevate your kitchen with warm tones, beautiful hardware, and practical styling." },
+        { name: "Laundry", slug: "laundry-room-ideas", img: "/images/categories/laundry-room.jpg", description: "Make laundry day beautiful with clever, organized, and stylish spaces." },
+        { name: "Apartment", slug: "apartment-living-room-ideas", img: "/images/categories/apartment-living-room.jpg", description: "Maximize small spaces with renter-friendly decor and clever layouts." },
+      ];
 
   return (
     <div className="flex flex-col space-y-20 pb-20">
@@ -219,12 +237,28 @@ export default async function Home() {
 
       {/* Free Resource Lead Magnet */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <EmailSignup
-          title="Get the Free Home Decor Guide"
-          description="A practical guide to creating a beautiful, elevated home without overspending. Learn style discovery, color palettes, and budget planning."
-          buttonText="Send Me the Free Guide"
-          leadMagnetName="The Elevated Home Starter Guide"
-        />
+        <div className="bg-brand-warmwhite border border-brand-taupe-light rounded-xl p-8 md:p-12 shadow-sm flex flex-col md:flex-row gap-8 items-center justify-between">
+          <div className="space-y-4 max-w-2xl text-left">
+            <span className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-brand-taupe-dark bg-brand-cream border border-brand-taupe-light px-3 py-1 rounded">
+              FREE GUIDE
+            </span>
+            <h2 className="font-serif text-3xl md:text-4xl font-extrabold text-brand-black leading-tight">
+              Create a Beautiful Home Without Overspending
+            </h2>
+            <p className="text-sm md:text-base text-brand-charcoal/80 leading-relaxed">
+              Download <strong>The Elevated Home Starter Guide</strong> for practical decorating advice, style guidance, color tips, budgeting advice, and room-planning strategies.
+            </p>
+          </div>
+          <div className="flex-shrink-0">
+            <Link
+              href="/free-resources/elevated-home-starter-guide"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-brand-black text-brand-cream text-xs font-semibold uppercase tracking-wider rounded-md hover:bg-brand-taupe-dark transition duration-300 shadow-md"
+            >
+              <span>GET THE FREE GUIDE</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+        </div>
       </section>
 
       {/* Digital Product Promotion */}

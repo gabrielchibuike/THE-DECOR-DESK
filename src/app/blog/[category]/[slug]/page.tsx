@@ -130,8 +130,8 @@ export default async function BlogPostDetail({ params }: PostPageProps) {
             ))}
           </div>
 
-          {/* Coming back for this later */}
-          {/* <ArticleCTA categorySlug={category} /> */}
+          {/* Lead Magnet Article CTA */}
+          <ArticleCTA categorySlug={category} />
 
           {/* Footer CTA */}
           <div className="border-t border-brand-taupe-light/60 pt-8 mt-12 flex flex-col sm:flex-row justify-between items-center gap-6">

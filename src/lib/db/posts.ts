@@ -48,6 +48,17 @@ const POST_SELECT_FALLBACK = `
   categories(id, name, slug)
 `;
 
+function normalizePost(post: any): Post {
+  if (!post) return post;
+  const categories = Array.isArray(post.categories) 
+    ? (post.categories[0] ?? null) 
+    : (post.categories ?? null);
+  return {
+    ...post,
+    categories,
+  };
+}
+
 export async function getPostsByType(postType: "editorial" | "shopping_guide"): Promise<Post[]> {
   const supabase = createPublicClient();
   const { data, error } = await supabase
@@ -66,7 +77,7 @@ export async function getPostsByType(postType: "editorial" | "shopping_guide"): 
     console.error("getPostsByType:", error.message);
     return [];
   }
-  return (data as Post[]) ?? [];
+  return (data ?? []).map(normalizePost);
 }
 
 export async function getAllPosts(): Promise<Post[]> {
@@ -84,12 +95,12 @@ export async function getAllPosts(): Promise<Post[]> {
         .select(POST_SELECT_FALLBACK)
         .eq("status", "published")
         .order("published_at", { ascending: false });
-      return (fallbackData as Post[]) ?? [];
+      return (fallbackData ?? []).map(normalizePost);
     }
     console.error("getAllPosts:", error.message);
     return [];
   }
-  return (data as Post[]) ?? [];
+  return (data ?? []).map(normalizePost);
 }
 
 export async function getFeaturedPost(): Promise<Post | null> {
@@ -113,11 +124,11 @@ export async function getFeaturedPost(): Promise<Post | null> {
         .order("published_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-      return fallbackData as Post | null;
+      return fallbackData ? normalizePost(fallbackData) : null;
     }
     return null;
   }
-  return data as Post | null;
+  return data ? normalizePost(data) : null;
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
@@ -135,11 +146,11 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
         .select(POST_SELECT_FALLBACK)
         .eq("slug", slug)
         .single();
-      return fallbackData as Post | null;
+      return fallbackData ? normalizePost(fallbackData) : null;
     }
     return null;
   }
-  return data as Post | null;
+  return data ? normalizePost(data) : null;
 }
 
 export async function getPostsByCategory(categoryId: string): Promise<Post[]> {
@@ -159,12 +170,12 @@ export async function getPostsByCategory(categoryId: string): Promise<Post[]> {
         .eq("status", "published")
         .eq("category_id", categoryId)
         .order("published_at", { ascending: false });
-      return (fallbackData as Post[]) ?? [];
+      return (fallbackData ?? []).map(normalizePost);
     }
     console.error("getPostsByCategory:", error.message);
     return [];
   }
-  return (data as Post[]) ?? [];
+  return (data ?? []).map(normalizePost);
 }
 
 export async function getAllPostsAdmin(): Promise<Post[]> {
@@ -174,7 +185,7 @@ export async function getAllPostsAdmin(): Promise<Post[]> {
     .select(POST_SELECT)
     .order("updated_at", { ascending: false });
   if (error) { console.error("getAllPostsAdmin:", error.message); return []; }
-  return (data as Post[]) ?? [];
+  return (data ?? []).map(normalizePost);
 }
 
 // Extract H2/H3 headings from content blocks for Table of Contents
